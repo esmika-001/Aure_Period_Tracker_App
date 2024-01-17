@@ -4,11 +4,26 @@ import 'package:intl/intl.dart';
 import 'Calender_page.dart';
 import 'History_page.dart';
 import 'Setting_page.dart';
-//import 'about_page.dart';
+import 'chat_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
+}
+
+BottomNavigationBarItem _buildBottomNavigationBarItem(
+    IconData icon, String label) {
+  return BottomNavigationBarItem(
+    icon: Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.pink.withOpacity(0.25),
+      ),
+      child: Icon(icon),
+    ),
+    label: label,
+  );
 }
 
 class _HomePageState extends State<HomePage> {
@@ -56,7 +71,7 @@ class _HomePageState extends State<HomePage> {
                 child: Center(
                   child: ClipOval(
                     child: Image.asset(
-                      'period_women.jpeg', // Replace with your photo asset path
+                      'Aura.png', // Replace with your photo asset path
                       width: 100.0,
                       height: 100.0,
                       fit: BoxFit.cover,
@@ -117,26 +132,20 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_box),
-            label: 'About',
-          ),
+          _buildBottomNavigationBarItem(Icons.calendar_today, 'Calendar'),
+          _buildBottomNavigationBarItem(Icons.list, 'History'),
+          _buildBottomNavigationBarItem(Icons.chat, 'Chat'),
+          _buildBottomNavigationBarItem(Icons.account_box, 'About'),
         ],
-        selectedItemColor: Colors.black, // Change the color of selected icons
-        unselectedItemColor:
-            Colors.black, // Change the color of unselected icons
+        selectedItemColor:
+            Color.fromARGB(255, 0, 0, 0), // Change the color of selected icons
+        unselectedItemColor: Color.fromARGB(255, 0, 0, 0),
+        selectedLabelStyle: TextStyle(
+            color: Color.fromARGB(
+                255, 0, 21, 247)), // Change the color of selected text
+        unselectedLabelStyle: TextStyle(
+            color: const Color.fromARGB(
+                255, 247, 2, 2)), // Change the color of unselected icons
         onTap: (index) {
           // Handle navigation based on the tapped index
           switch (index) {
@@ -155,9 +164,10 @@ class _HomePageState extends State<HomePage> {
             case 2:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => ChatPage()),
               );
               break;
+
             case 3:
               Navigator.push(
                 context,
