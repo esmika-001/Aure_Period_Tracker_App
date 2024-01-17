@@ -39,6 +39,51 @@ class _CalendarPageState extends State<CalendarPage> {
     return kEvents[day] ?? [];
   }
 
+  Widget _buildSelectableBlock(String blockName, String imagePath) {
+    String selectedBlock = '';
+    bool isSelected = selectedBlock == blockName;
+
+    return GestureDetector(
+      onTap: () {
+        // Handle the selection of the block here
+        setState(() {
+          selectedBlock = blockName;
+        });
+        print('Selected Block: $blockName');
+      },
+      child: Container(
+        width: 100.0, // Adjust the width as needed
+        height: 100.0, // Adjust the height as needed
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.black,
+            width: isSelected ? 3.0 : 1.0,
+          ),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              width: 60.0, // Adjust the image width as needed
+              height: 60.0, // Adjust the image height as needed
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              blockName,
+              style: TextStyle(
+                fontSize: 16.0, // Adjust the font size as needed
+                fontWeight: FontWeight.bold, // Adjust the font weight as needed
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   List<DateTime> daysInRange(DateTime start, DateTime end) {
     final days = <DateTime>[];
 
@@ -97,63 +142,107 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppBar(
         title: Text('Calendar Page'),
       ),
-      body: Column(
-        children: [
-          TableCalendar<Event>(
-            firstDay: kFirstDay,
-            lastDay: kLastDay,
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            rangeStartDay: _rangeStart,
-            rangeEndDay: _rangeEnd,
-            calendarFormat: _calendarFormat,
-            rangeSelectionMode: _rangeSelectionMode,
-            eventLoader: _getEventsForDay,
-            startingDayOfWeek: StartingDayOfWeek.monday,
-            calendarStyle: CalendarStyle(
-              outsideDaysVisible: false,
-            ),
-            onDaySelected: _onDaySelected,
-            onRangeSelected: _onRangeSelected,
-            onFormatChanged: (format) {
-              if (_calendarFormat != format) {
-                setState(() {
-                  _calendarFormat = format;
-                });
-              }
-            },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
-            },
-          ),
-          const SizedBox(height: 8.0),
-          Expanded(
-            child: ValueListenableBuilder<List<Event>>(
-              valueListenable: _selectedEvents,
-              builder: (context, value, _) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: ListTile(
-                        onTap: () => print('${value[index]}'),
-                        title: Text('${value[index]}'),
-                      ),
-                    );
-                  },
-                );
+      body: Expanded(
+        child: Column(
+          children: [
+            TableCalendar<Event>(
+              firstDay: kFirstDay,
+              lastDay: kLastDay,
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              rangeStartDay: _rangeStart,
+              rangeEndDay: _rangeEnd,
+              calendarFormat: _calendarFormat,
+              rangeSelectionMode: _rangeSelectionMode,
+              eventLoader: _getEventsForDay,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              calendarStyle: CalendarStyle(
+                outsideDaysVisible: false,
+              ),
+              onDaySelected: _onDaySelected,
+              onRangeSelected: _onRangeSelected,
+              onFormatChanged: (format) {
+                if (_calendarFormat != format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                }
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
               },
             ),
-          ),
-        ],
+            const SizedBox(height: 4.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Periods',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25.0,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSelectableBlock('Light', 'assets/light1.png'),
+                  _buildSelectableBlock('Medium', 'assets/medium1.png'),
+                  _buildSelectableBlock('Heavy', 'assets/heavy1.png'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Expanded(
+              child: ValueListenableBuilder<List<Event>>(
+                valueListenable: _selectedEvents,
+                builder: (context, value, _) {
+                  return ListView.builder(
+                    itemCount: value.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 20.0,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: ListTile(
+                          onTap: () => print('${value[index]}'),
+                          title: Text('${value[index]}'),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Add functionality to save here
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Color.fromARGB(255, 113, 3, 7),
+                  fixedSize: Size(150, 40),
+                ),
+                child: Text(
+                  'Save',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
