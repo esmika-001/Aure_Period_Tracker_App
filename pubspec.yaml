@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=3.0.5 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,13 +30,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  table_calendar: ^3.0.0
+  table_calendar: ^3.0.9
   toggle_switch: ^2.0.1
   kommunicate_flutter: ^1.8.4
   # flutter_dialogflow: any
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  firebase_core: any
+  firebase_auth: ^4.5.0
+  # cloud_firestore: ^4.14.0
+  cloud_firestore: ^4.15.3
+  firebase_storage: ^11.2.4
+  fluttertoast: ^8.2.2
+  font_awesome_flutter: ^10.6.0
+  google_sign_in: ^6.1.5
+  google_fonts: ^2.1.0
+  image_picker: ^0.8.4+2
+  provider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -69,7 +80,17 @@ flutter:
     - assets/Aura.png
     - assets/light1.png
     - assets/medium1.png
+    - assets/background_image.png
     - assets/heavy1.png
+    - assets/login1.jpg
+    - assets/login2.jpg
+    - assets/profile_picture.jpg
+    - assets/happy.png
+    - assets/sad.png
+    - assets/calm.png
+    - assets/confused.png
+    - assets/angry.png
+    - assets/excited.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

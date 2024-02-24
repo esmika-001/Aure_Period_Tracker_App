@@ -1,6 +1,5 @@
-// blog_page.dart
-
 import 'package:flutter/material.dart';
+import 'BlogDetailPage.dart';
 
 void main() {
   runApp(SettingsPage());
@@ -62,11 +61,13 @@ class BlogPage extends StatelessWidget {
     },
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Blogs'),
+        backgroundColor: Colors.purple[200],
       ),
       body: ListView.builder(
         itemCount: blogs.length,
@@ -85,21 +86,24 @@ class BlogPage extends StatelessWidget {
                 ),
               );
             },
-            child: Container(
-              padding: EdgeInsets.all(16.0),
-              margin: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
+            child: Card(
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
+              elevation: 4.0,
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Blog Image
                   Container(
-                    width: 80.0,
-                    height: 80.0,
+                    width: 100.0,
+                    height: 100.0,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.0),
+                        bottomLeft: Radius.circular(10.0),
+                      ),
                       image: DecorationImage(
                         image: AssetImage(blogs[index]['image'] ??
                             'assets/default_image.jpg'),
@@ -107,14 +111,24 @@ class BlogPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.0),
-                  // Blog Title
+                  SizedBox(width: 12.0),
                   Expanded(
-                    child: Text(
-                      blogs[index]['title'] ?? 'Default Title',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Blog Title
+                          Text(
+                            blogs[index]['title'] ?? 'Default Title',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 8.0),
+                          // Blog Content (Preview)
+                        ],
                       ),
                     ),
                   ),
@@ -123,59 +137,6 @@ class BlogPage extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class BlogDetailPage extends StatelessWidget {
-  final String title;
-  final String imagePath;
-  final String content;
-
-  BlogDetailPage(
-      {required this.title, required this.imagePath, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Blog Details'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Blog Image
-            Container(
-              width: 150.0,
-              height: 150.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                  image: AssetImage(imagePath),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 20.0),
-            // Blog Title
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 20.0),
-            // Blog Content
-            Text(
-              content,
-              style: TextStyle(fontSize: 16.0),
-            ),
-          ],
-        ),
       ),
     );
   }

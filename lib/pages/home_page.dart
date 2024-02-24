@@ -5,6 +5,7 @@ import 'Calender_page.dart';
 import 'History_page.dart';
 import 'Setting_page.dart';
 import 'chat_page.dart';
+import 'profile_page.dart'; // Import the profile page if it exists
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ BottomNavigationBarItem _buildBottomNavigationBarItem(
         shape: BoxShape.circle,
         color: Colors.pink.withOpacity(0.25),
       ),
-      child: Icon(icon),
+      child: Icon(icon, color: Colors.white), // Set icon color to white
     ),
     label: label,
   );
@@ -41,6 +42,13 @@ class _HomePageState extends State<HomePage> {
         selectedDate = picked;
       });
     }
+  }
+
+  void _navigateToProfilePage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProfilePage()),
+    );
   }
 
   @override
@@ -68,15 +76,26 @@ class _HomePageState extends State<HomePage> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: Center(
-                  child: ClipOval(
-                    child: Image.asset(
-                      'Aura.png', // Replace with your photo asset path
-                      width: 100.0,
-                      height: 100.0,
-                      fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: Icon(Icons.person),
+                        onPressed: () => _navigateToProfilePage(context),
+                      ),
                     ),
-                  ),
+                    Center(
+                      child: ClipOval(
+                        child: Image.asset(
+                          'Aura.png', // Replace with your photo asset path
+                          width: 100.0,
+                          height: 100.0,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -137,15 +156,8 @@ class _HomePageState extends State<HomePage> {
           _buildBottomNavigationBarItem(Icons.chat, 'Chat'),
           _buildBottomNavigationBarItem(Icons.account_box, 'About'),
         ],
-        selectedItemColor:
-            Color.fromARGB(255, 0, 0, 0), // Change the color of selected icons
-        unselectedItemColor: Color.fromARGB(255, 0, 0, 0),
-        selectedLabelStyle: TextStyle(
-            color: Color.fromARGB(
-                255, 0, 21, 247)), // Change the color of selected text
-        unselectedLabelStyle: TextStyle(
-            color: const Color.fromARGB(
-                255, 247, 2, 2)), // Change the color of unselected icons
+        selectedItemColor: Colors.pink, // Change the color of selected icons and text
+        unselectedItemColor: Colors.pink[100],
         onTap: (index) {
           // Handle navigation based on the tapped index
           switch (index) {
@@ -167,7 +179,6 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => ChatPage()),
               );
               break;
-
             case 3:
               Navigator.push(
                 context,
@@ -176,6 +187,8 @@ class _HomePageState extends State<HomePage> {
               break;
           }
         },
+        selectedLabelStyle: TextStyle(color: Colors.white),
+        unselectedLabelStyle: TextStyle(color: Colors.pink[100]),
       ),
     );
   }

@@ -1,6 +1,8 @@
 // blog_detail_page.dart
 
 import 'package:flutter/material.dart';
+import 'setting_page.dart';
+
 
 class BlogDetailPage extends StatelessWidget {
   final String title;

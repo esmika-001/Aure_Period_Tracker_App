@@ -1,7 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'utils.dart';
+// import 'package:intl/intl.dart';
+class Event {
+  final String name;
+
+  Event(this.name);
+
+  @override
+  String toString() => name;
+}
 
 class CalendarPage extends StatefulWidget {
   @override
@@ -10,7 +19,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   late final ValueNotifier<List<Event>> _selectedEvents;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  CalendarFormat _calendarFormat = CalendarFormat.week;
   RangeSelectionMode _rangeSelectionMode = RangeSelectionMode.toggledOff;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -39,8 +48,8 @@ class _CalendarPageState extends State<CalendarPage> {
     return kEvents[day] ?? [];
   }
 
+  String selectedBlock = '';
   Widget _buildSelectableBlock(String blockName, String imagePath) {
-    String selectedBlock = '';
     bool isSelected = selectedBlock == blockName;
 
     return GestureDetector(
@@ -55,9 +64,10 @@ class _CalendarPageState extends State<CalendarPage> {
         width: 100.0, // Adjust the width as needed
         height: 100.0, // Adjust the height as needed
         decoration: BoxDecoration(
+          color: isSelected ? Color.fromARGB(255, 233, 102, 102) : null,
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.black,
-            width: isSelected ? 3.0 : 1.0,
+            color: isSelected ? Color.fromARGB(255, 81, 7, 7) : Colors.black,
+            width: 3.0,
           ),
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -84,6 +94,37 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
+  void _savePeriod() async {
+    if (_selectedDay != null && selectedBlock.isNotEmpty) {
+      String periodType = selectedBlock;
+      DateTime selectedDate = _selectedDay!;
+
+      try {
+        await FirebaseFirestore.instance.collection('periods').add({
+          'date': Timestamp.fromDate(selectedDate),
+          'periodType': periodType,
+        });
+
+        // Successfully saved, navigate to home page
+        Navigator.of(context)
+            .pop(); // This will pop the current screen and go back to the previous one
+        print('Period saved successfully.');
+      } catch (e) {
+        print('Error saving period: $e');
+      }
+    } else {
+      // No block selected, show a message or perform a screen shake
+      // You can use a Flutter package like 'shake' for screen shake effect
+      // or show a Snackbar or Dialog with an appropriate message
+      if (selectedBlock.isEmpty) {
+        final snackBar = SnackBar(
+          content: Text('Please select a period type before saving.'),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
+  }
+
   List<DateTime> daysInRange(DateTime start, DateTime end) {
     final days = <DateTime>[];
 
@@ -99,6 +140,55 @@ class _CalendarPageState extends State<CalendarPage> {
     return [
       for (final d in days) ..._getEventsForDay(d),
     ];
+  }
+
+  Widget _buildMarkers(BuildContext context, DateTime day, List<Event> events) {
+    final markers = <Widget>[];
+
+    // Check if events exist for the current day
+    if (events.isNotEmpty) {
+      // Iterate through each event for the day
+      for (final event in events) {
+        // Check if the event is a period type (e.g., 'Light', 'Medium', 'Heavy')
+        if (event.name == 'Light' ||
+            event.name == 'Medium' ||
+            event.name == 'Heavy') {
+          // Add a marker widget (circle) for each period type
+          markers.add(
+            Positioned(
+              right: 1,
+              bottom: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _getColorForPeriodType(event
+                      .name), // Customize the color based on the period type
+                ),
+                width: 8,
+                height: 8,
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    // Return the list of markers
+    return Row(children: markers);
+  }
+
+// Method to return color based on period type
+  Color _getColorForPeriodType(String periodType) {
+    switch (periodType) {
+      case 'Light':
+        return Colors.blue; // Customize color for Light period type
+      case 'Medium':
+        return Colors.green; // Customize color for Medium period type
+      case 'Heavy':
+        return Colors.red; // Customize color for Heavy period type
+      default:
+        return Colors.black; // Default color
+    }
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -136,42 +226,101 @@ class _CalendarPageState extends State<CalendarPage> {
   static final kFirstDay = DateTime(2000, 1, 1);
   static final kLastDay = DateTime(2101, 12, 31);
 
+  Widget _buildMoodSelectable(String moodName, String imagePath) {
+    bool isSelected = selectedMood == moodName;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedMood = moodName;
+        });
+        print('Selected Mood: $moodName');
+      },
+      child: Container(
+        width: 100.0,
+        height: 100.0,
+        decoration: BoxDecoration(
+          color: isSelected ? Color.fromARGB(255, 233, 102, 102) : null,
+          border: Border.all(
+            color: isSelected ? Color.fromARGB(255, 81, 7, 7) : Colors.black,
+            width: 3.0,
+          ),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              width: 60.0,
+              height: 60.0,
+              fit: BoxFit.cover,
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              moodName,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  String selectedMood = '';
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendar Page'),
       ),
-      body: Expanded(
-        child: Column(
-          children: [
-            TableCalendar<Event>(
-              firstDay: kFirstDay,
-              lastDay: kLastDay,
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              rangeStartDay: _rangeStart,
-              rangeEndDay: _rangeEnd,
-              calendarFormat: _calendarFormat,
-              rangeSelectionMode: _rangeSelectionMode,
-              eventLoader: _getEventsForDay,
-              startingDayOfWeek: StartingDayOfWeek.monday,
-              calendarStyle: CalendarStyle(
-                outsideDaysVisible: false,
+      
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxlsScrolled) {
+          return [
+            SliverAppBar(
+              expandedHeight: 200.0,
+              floating: false,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text('Calender Page'),
+                background: TableCalendar<Event>(
+                  firstDay: kFirstDay,
+                  lastDay: kLastDay,
+                  focusedDay: _focusedDay,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  rangeStartDay: _rangeStart,
+                  rangeEndDay: _rangeEnd,
+                  calendarFormat: _calendarFormat,
+                  rangeSelectionMode: _rangeSelectionMode,
+                  eventLoader: _getEventsForDay,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  calendarStyle: CalendarStyle(
+                    outsideDaysVisible: false,
+                  ),
+                  onDaySelected: _onDaySelected,
+                  onRangeSelected: _onRangeSelected,
+                  onFormatChanged: (format) {
+                    if (_calendarFormat != format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    }
+                  },
+                  onPageChanged: (focusedDay) {
+                    _focusedDay = focusedDay;
+                  },
+                ),
               ),
-              onDaySelected: _onDaySelected,
-              onRangeSelected: _onRangeSelected,
-              onFormatChanged: (format) {
-                if (_calendarFormat != format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                }
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
-              },
             ),
+          ];
+        },
+        body: Column(
+          children: [
             const SizedBox(height: 4.0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -183,9 +332,9 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 2.0),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -222,26 +371,77 @@ class _CalendarPageState extends State<CalendarPage> {
                 },
               ),
             ),
-            const SizedBox(height: 8.0),
+          const SizedBox(height: 4.0),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Add functionality to save here
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 113, 3, 7),
-                  fixedSize: Size(150, 40),
-                ),
-                child: Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+              child: Text(
+                'Mood',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25.0,
                 ),
               ),
             ),
+            const SizedBox(height: 2.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Replicate buildSelectableBlock for mood options
+                  _buildMoodSelectable('Happy', 'assets/happy.png'),
+                  _buildMoodSelectable('Sad', 'assets/sad.png'),
+                  _buildMoodSelectable('Excited', 'assets/excited.png'),
+                  _buildMoodSelectable('Angry', 'assets/angry.png'),
+                  _buildMoodSelectable('Calm', 'assets/calm.png'),
+                  _buildMoodSelectable('Confused', 'assets/confused.png'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Expanded(
+              child: ValueListenableBuilder<List<Event>>(
+                valueListenable: _selectedEvents,
+                builder: (context, value, _) {
+                  return ListView.builder(
+                    itemCount: value.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 20.0,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: ListTile(
+                          onTap: () => print('${value[index]}'),
+                          title: Text('${value[index]}'),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: ElevatedButton(
+          onPressed: _savePeriod,
+          style: ElevatedButton.styleFrom(
+            primary: Color.fromARGB(255, 113, 3, 7),
+            fixedSize: Size(150, 40),
+          ),
+          child: Text(
+            'Save',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
