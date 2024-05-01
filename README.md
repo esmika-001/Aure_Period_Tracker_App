@@ -1,5 +1,6 @@
-# period_tracker_app
+Period Tracker App
 
+Welcome to the Period Tracker App repository! Our app is designed to help individuals track their menstrual cycles easily and effectively. Whether you're planning pregnancies, managing your health, or simply staying informed about your body, our app provides the tools you need to monitor your menstrual cycle with precision and convenience.
 A new Flutter project.
 
 ## Getting Started
